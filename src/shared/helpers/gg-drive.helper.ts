@@ -1,50 +1,108 @@
 import { GetFileList } from 'google-drive-getfilelist'
-import { google } from 'googleapis'
 import { logger } from '../providers/'
+import { Readable } from 'stream'
+import FormData from 'form-data'
+import axios from 'axios'
+import * as fs from 'fs'
 
 export class GoogleDriveHelper {
   private GG_API_KEY: string = process.env.GG_API_KEY
+  private AI_SERVER_URL: string =
+    'http://home-server.silk-cat.software:3000/face-findor'
 
-  public downloadFolder = (folderId: string) => {
-    const drive = google.drive({
-      version: 'v3',
-      auth: this.GG_API_KEY,
-    })
-
+  public getGoogleImgLink = (folderId: string, callback: Function) => {
     const resource = {
       auth: this.GG_API_KEY,
       id: folderId,
       fields: 'files(id)',
     }
 
-    GetFileList(resource, (err: any, res: any) => {
+    return GetFileList(resource, (err: any, res: any) => {
       if (err) {
         logger.error(err)
+        callback([])
         return
       }
-      const files = res.fileList.flatMap(({ files }) => files)
-
-      files.forEach(async (f: any) => {
-        try {
-          const file = await drive.files.get(
-            {
-              fileId: f.id,
-              alt: 'media',
-            },
-            {
-              responseType: 'arraybuffer',
-            },
-            (err, res: any) => {
-              if (!res) throw err
-              const dataBuffer = Buffer.from(res.data)
-              console.log(dataBuffer.length)
-            },
-          )
-        } catch (err) {
-          console.log(`Error file id ${f.id}`)
-        }
-      })
+      const files: FileDriveResponse[] = res.fileList.flatMap(
+        ({ files }) => files,
+      )
+      const fileInfors: FileInfor[] = files.map(
+        (f: FileDriveResponse): FileInfor => {
+          return {
+            id: f.id,
+            url: `https://www.googleapis.com/drive/v3/files/${f.id}?alt=media&key=${this.GG_API_KEY}`,
+          }
+        },
+      )
+      callback(fileInfors)
     })
-    return []
   }
+
+  public recognizeWithGGDrive = (folderId: string, callback: Function) => {
+    const formData = new FormData()
+    this.getGoogleImgLink(folderId, async (files: FileInfor[]) => {
+      // LIST IMAGES
+      files.forEach(async (file: FileInfor) => {
+        const fileRes = await axios({
+          url: file.url,
+          responseType: 'arraybuffer',
+        })
+        const buffer64 = Buffer.from(fileRes.data, 'binary')
+        formData.append(
+          'list_images',
+          Readable.from(buffer64),
+          `${file.id}.png`,
+        )
+      })
+      // TARGET IMAGE
+      const fileRes = await axios({
+        url: files[0].url,
+        responseType: 'arraybuffer',
+      })
+      const buffer64 = Buffer.from(fileRes.data, 'binary')
+      formData.append(
+        'target_image',
+        Readable.from(buffer64),
+        `${files[0].id}.png`,
+      )
+
+      // formData.append(
+      //   'list_images',
+      //   fs.createReadStream('/home/phuocleoceo/Downloads/IMG_3266.JPG'),
+      // )
+      // formData.append(
+      //   'list_images',
+      //   fs.createReadStream('/home/phuocleoceo/Downloads/IMG_3267.JPG'),
+      // )
+      // formData.append(
+      //   'target_image',
+      //   fs.createReadStream('/home/phuocleoceo/Downloads/IMG_3270.JPG'),
+      // )
+
+      const config = {
+        method: 'post',
+        url: this.AI_SERVER_URL,
+        headers: {
+          ...formData.getHeaders(),
+        },
+        data: formData,
+      }
+
+      try {
+        const response = await axios(config)
+        callback(response, null)
+      } catch (err) {
+        callback(null, err)
+      }
+    })
+  }
+}
+
+interface FileDriveResponse {
+  id: string
+}
+
+interface FileInfor {
+  id: string
+  url: string
 }

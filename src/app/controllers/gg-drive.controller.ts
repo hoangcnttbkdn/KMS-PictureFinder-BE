@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
-import { StatusCodes } from 'http-status-codes'
 import { GoogleDriveHelper } from '../../shared/helpers'
+import { StatusCodes } from 'http-status-codes'
 
 export class GoogleDriveController {
   private googleDriveHelper: GoogleDriveHelper
@@ -16,9 +16,16 @@ export class GoogleDriveController {
   ): Promise<void> => {
     try {
       const folderId: string = req.query.folderId as string
-      const result = this.googleDriveHelper.downloadFolder(folderId)
-      console.log(result)
-      res.status(StatusCodes.OK).json({ message: 'OK' })
+      this.googleDriveHelper.recognizeWithGGDrive(
+        folderId,
+        (response: any, error: any) => {
+          if (!error) {
+            res.status(StatusCodes.OK).json(response.data)
+          } else {
+            res.status(StatusCodes.BAD_REQUEST).json(error)
+          }
+        },
+      )
     } catch (error) {
       next(error)
     }
