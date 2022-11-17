@@ -2,8 +2,21 @@ import { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { CreateUserDto } from '../dtos'
 import { createAxios } from '../utils'
+import { CustomRequest } from '../typings/request'
 
 export class HomeController {
+  public upload = async (
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      console.log(req.targetImage)
+      res.json('ok')
+    } catch (error) {
+      next(error)
+    }
+  }
   public home = async (
     req: Request,
     res: Response,
