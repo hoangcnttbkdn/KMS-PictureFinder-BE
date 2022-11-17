@@ -1,3 +1,4 @@
+import { StatusCodes } from 'http-status-codes'
 import Multer, { memoryStorage } from 'multer'
 import { NextFunction, Response } from 'express'
 import { CustomRequest } from '../typings/request'
@@ -12,7 +13,11 @@ export const fileUploadMiddleware = async (
   next: NextFunction,
 ) => {
   try {
-    console.log(req.file.buffer)
+    if (!req.file) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: 'Target image is required' })
+    }
     req.targetImage = req.file.buffer
     next()
   } catch (error) {
