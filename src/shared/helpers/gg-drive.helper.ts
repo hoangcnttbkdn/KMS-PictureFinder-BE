@@ -3,7 +3,6 @@ import { logger } from '../providers/'
 import { Readable } from 'stream'
 import FormData from 'form-data'
 import axios from 'axios'
-import * as fs from 'fs'
 
 export class GoogleDriveHelper {
   private GG_API_KEY: string = process.env.GG_API_KEY
@@ -14,7 +13,7 @@ export class GoogleDriveHelper {
     const resource = {
       auth: this.GG_API_KEY,
       id: folderId,
-      fields: 'files(id)',
+      fields: 'files(id,name)',
     }
 
     return GetFileList(resource, (err: any, res: any) => {
@@ -30,6 +29,7 @@ export class GoogleDriveHelper {
         (f: FileDriveResponse): FileInfor => {
           return {
             id: f.id,
+            name: f.name,
             url: `https://www.googleapis.com/drive/v3/files/${f.id}?alt=media&key=${this.GG_API_KEY}`,
           }
         },
@@ -42,18 +42,20 @@ export class GoogleDriveHelper {
     const formData = new FormData()
     this.getGoogleImgLink(folderId, async (files: FileInfor[]) => {
       // LIST IMAGES
-      files.forEach(async (file: FileInfor) => {
-        const fileRes = await axios({
-          url: file.url,
-          responseType: 'arraybuffer',
-        })
-        const buffer64 = Buffer.from(fileRes.data, 'binary')
-        formData.append(
-          'list_images',
-          Readable.from(buffer64),
-          `${file.id}.png`,
-        )
-      })
+      await Promise.all(
+        files.map(async (file: FileInfor) => {
+          const fileRes = await axios({
+            url: file.url,
+            responseType: 'arraybuffer',
+          })
+          const buffer64 = Buffer.from(fileRes.data, 'binary')
+          formData.append(
+            'list_images',
+            Readable.from(buffer64),
+            `${file.name}.png`,
+          )
+        }),
+      )
       // TARGET IMAGE
       const fileRes = await axios({
         url: files[0].url,
@@ -63,21 +65,8 @@ export class GoogleDriveHelper {
       formData.append(
         'target_image',
         Readable.from(buffer64),
-        `${files[0].id}.png`,
+        `${files[0].name}.png`,
       )
-
-      // formData.append(
-      //   'list_images',
-      //   fs.createReadStream('/home/phuocleoceo/Downloads/IMG_3266.JPG'),
-      // )
-      // formData.append(
-      //   'list_images',
-      //   fs.createReadStream('/home/phuocleoceo/Downloads/IMG_3267.JPG'),
-      // )
-      // formData.append(
-      //   'target_image',
-      //   fs.createReadStream('/home/phuocleoceo/Downloads/IMG_3270.JPG'),
-      // )
 
       const config = {
         method: 'post',
@@ -90,7 +79,15 @@ export class GoogleDriveHelper {
 
       try {
         const response = await axios(config)
-        callback(response, null)
+
+        const result: FileInfor[] = []
+        Object.keys(response).forEach((key: string) => {
+          const value = response.data[key]
+          if (value['match_face']) {
+            result.push(files.find((item) => key.includes(item.name)))
+          }
+        })
+        callback(result, null)
       } catch (err) {
         callback(null, err)
       }
@@ -100,9 +97,11 @@ export class GoogleDriveHelper {
 
 interface FileDriveResponse {
   id: string
+  name: string
 }
 
 interface FileInfor {
   id: string
+  name: string
   url: string
 }

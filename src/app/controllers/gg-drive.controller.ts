@@ -15,7 +15,7 @@ export class GoogleDriveController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const folderId: string = req.query.folderId as string
+      const { folderId } = req.body
       this.googleDriveHelper.recognizeWithGGDrive(
         folderId,
         (response: any, error: any) => {

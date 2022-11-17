@@ -13,7 +13,7 @@ class GoogleDriveRoute {
   }
 
   private initializeRoutes() {
-    this.router.route('/').get(this.googleDriveController.download)
+    this.router.route('/').post(this.googleDriveController.download)
   }
 }
 
