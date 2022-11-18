@@ -1,5 +1,5 @@
 import { GetFileList } from 'google-drive-getfilelist'
-import { logger } from '../providers/'
+import { logger } from '../../shared/providers'
 import { Readable } from 'stream'
 import FormData from 'form-data'
 import axios from 'axios'
@@ -38,7 +38,11 @@ export class GoogleDriveHelper {
     })
   }
 
-  public recognizeWithGGDrive = (folderId: string, callback: Function) => {
+  public recognizeWithGGDrive = (
+    folderId: string,
+    targetImage: Buffer,
+    callback: Function,
+  ) => {
     const formData = new FormData()
     this.getGoogleImgLink(folderId, async (files: FileInfor[]) => {
       // LIST IMAGES
@@ -49,40 +53,24 @@ export class GoogleDriveHelper {
             responseType: 'arraybuffer',
           })
           const buffer64 = Buffer.from(fileRes.data, 'binary')
-          formData.append(
-            'list_images',
-            Readable.from(buffer64),
-            `${file.name}.png`,
-          )
+          formData.append('list_images', Readable.from(buffer64), file.name)
         }),
       )
       // TARGET IMAGE
-      const fileRes = await axios({
-        url: files[0].url,
-        responseType: 'arraybuffer',
-      })
-      const buffer64 = Buffer.from(fileRes.data, 'binary')
-      formData.append(
-        'target_image',
-        Readable.from(buffer64),
-        `${files[0].name}.png`,
-      )
+      formData.append('target_image', Readable.from(targetImage), 'target.png')
 
       const config = {
         method: 'post',
         url: this.AI_SERVER_URL,
-        headers: {
-          ...formData.getHeaders(),
-        },
+        headers: { ...formData.getHeaders() },
         data: formData,
       }
 
       try {
-        const response = await axios(config)
-
+        const { data: apiData } = await axios(config)
         const result: FileInfor[] = []
-        Object.keys(response).forEach((key: string) => {
-          const value = response.data[key]
+        Object.keys(apiData).forEach((key: string) => {
+          const value = apiData[key]
           if (value['match_face']) {
             result.push(files.find((item) => key.includes(item.name)))
           }

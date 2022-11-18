@@ -2,7 +2,7 @@ import axios from 'axios'
 
 export const createAxios = (axiosConfig: {
   baseUrl: string
-  headers: object
+  headers?: object
 }) => {
   const axiosClient = axios.create({
     baseURL: axiosConfig.baseUrl,

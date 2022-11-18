@@ -1,15 +1,15 @@
 import { Router } from 'express'
-import { GoogleDriveController } from '../controllers'
+import { FacebookController } from '../controllers'
 import { multerUploadMiddleware, fileUploadMiddleware } from '../middlewares'
 
-class GoogleDriveRoute {
-  public path = '/api/gg-drive'
+class FacebookRoute {
+  public path = '/facebook'
   public router = Router()
 
-  private googleDriveController: GoogleDriveController
+  private facebookController: FacebookController
 
   constructor() {
-    this.googleDriveController = new GoogleDriveController()
+    this.facebookController = new FacebookController()
     this.initializeRoutes()
   }
 
@@ -19,9 +19,9 @@ class GoogleDriveRoute {
       .post(
         multerUploadMiddleware,
         fileUploadMiddleware,
-        this.googleDriveController.recognize,
+        this.facebookController.handle,
       )
   }
 }
 
-export const ggDriveRoute = new GoogleDriveRoute()
+export const facebookRoute = new FacebookRoute()
