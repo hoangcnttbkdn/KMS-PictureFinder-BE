@@ -10,10 +10,12 @@ COPY package*.json /
 
 RUN npm install
 
-COPY . /
+COPY . .
+
+RUN cp .env.example .env
 
 RUN npm run build
 
 EXPOSE ${APP_PORT}
 
-CMD "npm start"
+CMD ["npm", "start"]
