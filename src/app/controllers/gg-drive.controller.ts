@@ -1,6 +1,7 @@
-import { NextFunction, Request, Response } from 'express'
+import { CustomRequest } from '../typings/request'
+import { NextFunction, Response } from 'express'
+import { GoogleDriveHelper } from '../helpers'
 import { StatusCodes } from 'http-status-codes'
-import { GoogleDriveHelper } from '../../shared/helpers'
 
 export class GoogleDriveController {
   private googleDriveHelper: GoogleDriveHelper
@@ -9,16 +10,31 @@ export class GoogleDriveController {
     this.googleDriveHelper = new GoogleDriveHelper()
   }
 
-  public download = async (
-    req: Request,
+  public recognize = async (
+    req: CustomRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const folderId: string = req.query.folderId as string
-      const result = this.googleDriveHelper.downloadFolder(folderId)
-      console.log(result)
-      res.status(StatusCodes.OK).json({ message: 'OK' })
+      const { folderId } = req.body
+      if (!folderId) {
+        res
+          .status(StatusCodes.BAD_REQUEST)
+          .json({ message: 'GGDrive folderID is required' })
+        return
+      }
+
+      this.googleDriveHelper.recognizeWithGGDrive(
+        folderId,
+        req.targetImage,
+        (result: any, error: any) => {
+          if (!error) {
+            res.status(StatusCodes.OK).json(result)
+          } else {
+            res.status(StatusCodes.BAD_REQUEST).json(error)
+          }
+        },
+      )
     } catch (error) {
       next(error)
     }
