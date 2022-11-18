@@ -3,7 +3,7 @@ import { FacebookController } from '../controllers'
 import { multerUploadMiddleware, fileUploadMiddleware } from '../middlewares'
 
 class FacebookRoute {
-  public path = '/facebook'
+  public path = '/api/facebook'
   public router = Router()
 
   private facebookController: FacebookController

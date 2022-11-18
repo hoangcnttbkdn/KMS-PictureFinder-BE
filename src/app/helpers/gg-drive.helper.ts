@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { GetFileList } from 'google-drive-getfilelist'
 import { logger } from '../../shared/providers'
 import { Readable } from 'stream'
@@ -6,7 +7,7 @@ import axios from 'axios'
 
 export class GoogleDriveHelper {
   private GG_API_KEY: string = process.env.GG_API_KEY
-  private AI_SERVER_URL: string =
+  private AI_SERVER_URL =
     'http://home-server.silk-cat.software:3000/face-findor'
 
   public getGoogleImgLink = (folderId: string, callback: Function) => {
