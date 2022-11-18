@@ -72,7 +72,11 @@ export class GoogleDriveHelper {
         Object.keys(apiData).forEach((key: string) => {
           const value = apiData[key]
           if (value['match_face']) {
-            result.push(files.find((item) => key.includes(item.name)))
+            const matchFile = files.find((item) => key.includes(item.name))
+            result.push({
+              ...value,
+              ...matchFile,
+            })
           }
         })
         callback(result, null)
