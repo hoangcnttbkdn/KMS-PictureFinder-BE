@@ -2,6 +2,8 @@ import FormData from 'form-data'
 import { Readable } from 'stream'
 import axios from 'axios'
 
+import { ImageUrl } from '../typings'
+
 const sleep = (ms: number) => {
   return new Promise((resolve) => {
     setTimeout(resolve, ms)
@@ -9,7 +11,7 @@ const sleep = (ms: number) => {
 }
 
 export const handleCallApiForFacebook = async (
-  arrayLink: Array<{ id: any | string; url: any | string }>,
+  arrayLink: Array<ImageUrl>,
   targetImage: Buffer,
 ) => {
   const data = new FormData()

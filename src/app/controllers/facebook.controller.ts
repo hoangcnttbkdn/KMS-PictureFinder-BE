@@ -2,7 +2,7 @@ import { NextFunction, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { AxiosInstance } from 'axios'
 
-import { CustomRequest } from '../typings/request'
+import { CustomRequest, ImageUrl } from '../typings'
 import { createAxios, handleCallApiForFacebook } from '../utils'
 import { getAlbumId } from '../helpers'
 
@@ -21,7 +21,6 @@ export class FacebookController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      // console.log(req.targetImage)
       const { accessToken, cookie, albumUrl } = req.body
       if (!accessToken || !cookie) {
         res
@@ -40,7 +39,7 @@ export class FacebookController {
         params: { fields: 'largest_image', access_token: accessToken },
         headers: { cookie },
       })
-      const arrayLink = Array.from(data).map((item: any) => {
+      const arrayLink: Array<ImageUrl> = Array.from(data).map((item: any) => {
         return { id: item.id, url: item.largest_image.source }
       })
       console.log(arrayLink.length)
@@ -48,7 +47,7 @@ export class FacebookController {
         arrayLink,
         req.targetImage,
       )
-      const result: Array<{ id: any | string; url: any | string }> = []
+      const result: Array<ImageUrl> = []
       Object.keys(response).forEach((key: string) => {
         const value = response[key]
         if (value['match_face']) {
