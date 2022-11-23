@@ -42,7 +42,6 @@ export class FacebookController {
       const arrayLink: Array<ImageUrl> = Array.from(data).map((item: any) => {
         return { id: item.id, url: item.largest_image.source }
       })
-      console.log(arrayLink.length)
       const response = await handleCallApiForFacebook(
         arrayLink,
         req.targetImage,
