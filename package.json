@@ -6,9 +6,9 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "start": "node dist/main.js",
+    "start": "node dist/src/main.js",
     "dev": "nodemon",
-    "build": "npx tsc --project tsconfig.json && npx tsc-alias -p tsconfig.json",
+    "build": "rm -rf dist && npx tsc --project tsconfig.json && npx tsc-alias -p tsconfig.json",
     "prepare": "husky install",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
