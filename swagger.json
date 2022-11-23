@@ -1,0 +1,218 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "KMS Picture Finder API",
+    "description": "Finding pictures have your face in Google Drive public folder or Facebook public album.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://128.199.246.141:3000"
+    },
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "tags": [
+    {
+      "name": "facebook",
+      "description": "API for facebook album",
+      "externalDocs": {
+        "description": "Tutorial get Facebook token and cookie",
+        "url": "https://www.youtube.com/watch?v=azE2CIqV2Lw"
+      }
+    },
+    {
+      "name": "google",
+      "description": "API for google drive folder"
+    }
+  ],
+  "paths": {
+    "/api/facebook": {
+      "post": {
+        "tags": [
+          "facebook"
+        ],
+        "summary": "Finding your face in Facebook album",
+        "description": "Finding your face in Facebook public album.",
+        "operationId": "facebook",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "accessToken",
+                  "cookie",
+                  "albumUrl",
+                  "targetImage"
+                ],
+                "properties": {
+                  "accessToken": {
+                    "type": "string"
+                  },
+                  "cookie": {
+                    "type": "string"
+                  },
+                  "albumUrl": {
+                    "type": "string"
+                  },
+                  "targetImage": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Access token and cookie is required |\nTarget image is required |\nFacebook album url is valid |\nOnly .png, .jpg and .jpeg format allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "File too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/gg-drive": {
+      "post": {
+        "tags": [
+          "google"
+        ],
+        "summary": "Finding your face in Drive folder",
+        "description": "Finding your face in Google Drive public folder.",
+        "operationId": "google",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "folderId",
+                  "targetImage"
+                ],
+                "properties": {
+                  "folderId": {
+                    "type": "string"
+                  },
+                  "targetImage": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Target image is required |\nOnly .png, .jpg and .jpeg format allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "File too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Response": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "example": 123456789
+            },
+            "url": {
+              "type": "string",
+              "example": "https://abc.xyz/def?q=rt"
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

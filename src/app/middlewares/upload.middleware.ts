@@ -33,7 +33,7 @@ export const multerUploadMiddleware = Multer({
       callback(createError(StatusCodes.REQUEST_TOO_LONG, 'File too large'))
     }
   },
-}).single('target_image')
+}).single('targetImage')
 
 export const fileUploadMiddleware = async (
   req: CustomRequest,
