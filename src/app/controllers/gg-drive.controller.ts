@@ -16,16 +16,16 @@ export class GoogleDriveController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const { folderId } = req.body
-      if (!folderId) {
+      const { folderUrl } = req.body
+      if (!folderUrl) {
         res
           .status(StatusCodes.BAD_REQUEST)
-          .json({ message: 'GGDrive folderID is required' })
+          .json({ message: 'GGDrive folderUrl is required' })
         return
       }
 
       this.googleDriveHelper.recognizeWithGGDrive(
-        folderId,
+        folderUrl,
         req.targetImage,
         (result: any, error: any) => {
           if (!error) {

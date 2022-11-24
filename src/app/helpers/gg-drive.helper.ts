@@ -7,8 +7,7 @@ import axios from 'axios'
 
 export class GoogleDriveHelper {
   private GG_API_KEY: string = process.env.GG_API_KEY
-  private AI_SERVER_URL =
-    'http://home-server.silk-cat.software:3000/face-findor'
+  private AI_SERVER_URL = `${process.env.AI_API_SERVER}/face-findor`
 
   public getGoogleImgLink = (folderId: string, callback: Function) => {
     const resource = {
@@ -40,10 +39,16 @@ export class GoogleDriveHelper {
   }
 
   public recognizeWithGGDrive = (
-    folderId: string,
+    folderUrl: string,
     targetImage: Buffer,
     callback: Function,
   ) => {
+    const folderId = getGGDriveFolderId(folderUrl)
+    if (!folderId) {
+      callback(null, { message: 'This folderUrl is not contain folderId' })
+      return
+    }
+
     const formData = new FormData()
     this.getGoogleImgLink(folderId, async (files: FileInfor[]) => {
       // LIST IMAGES
@@ -69,14 +74,18 @@ export class GoogleDriveHelper {
 
       try {
         const { data: apiData } = await axios(config)
-        const result: FileInfor[] = []
+        const result = []
         Object.keys(apiData).forEach((key: string) => {
           const value = apiData[key]
           if (value['match_face']) {
             const matchFile = files.find((item) => key.includes(item.name))
+            // result.push({
+            //   ...value,
+            //   ...matchFile,
+            // })
             result.push({
-              ...value,
-              ...matchFile,
+              id: matchFile.id,
+              url: matchFile.url,
             })
           }
         })
@@ -88,6 +97,14 @@ export class GoogleDriveHelper {
   }
 }
 
+const getGGDriveFolderId = (folderUrl: string) => {
+  const regex = /(?<=folders\/)[^? \n\r\t]*/
+  const expression = folderUrl.match(regex)
+  if (expression != null) {
+    return expression[0]
+  }
+  return ''
+}
 interface FileDriveResponse {
   id: string
   name: string
