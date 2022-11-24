@@ -125,11 +125,11 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "folderId",
+                  "folderUrl",
                   "targetImage"
                 ],
                 "properties": {
-                  "folderId": {
+                  "folderUrl": {
                     "type": "string"
                   },
                   "targetImage": {
