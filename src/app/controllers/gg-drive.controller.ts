@@ -24,17 +24,15 @@ export class GoogleDriveController {
         return
       }
 
-      this.googleDriveHelper.recognizeWithGGDrive(
-        folderUrl,
-        req.targetImage,
-        (result: any, error: any) => {
-          if (!error) {
-            res.status(StatusCodes.OK).json(result)
-          } else {
-            res.status(StatusCodes.BAD_REQUEST).json(error)
-          }
-        },
-      )
+      try {
+        const result = await this.googleDriveHelper.recognizeWithGGDrive(
+          folderUrl,
+          req.targetImage,
+        )
+        res.status(StatusCodes.OK).json(result)
+      } catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json(error)
+      }
     } catch (error) {
       next(error)
     }
