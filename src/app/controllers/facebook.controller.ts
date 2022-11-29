@@ -1,20 +1,11 @@
 import { NextFunction, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { AxiosInstance } from 'axios'
 
 import { CustomRequest, ImageUrl } from '../typings'
-import { createAxios, handleCallApiForFacebook } from '../utils'
-import { getAlbumId } from '../helpers'
+import { handleCallApiForFacebook } from '../utils'
+import { getAlbumId, fetchAllPhotoLinks } from '../helpers'
 
 export class FacebookController {
-  private axiosFB: AxiosInstance
-
-  constructor() {
-    this.axiosFB = createAxios({
-      baseUrl: 'https://graph.facebook.com/v15.0/',
-    })
-  }
-
   public handle = async (
     req: CustomRequest,
     res: Response,
@@ -35,13 +26,8 @@ export class FacebookController {
           .json({ message: 'Facebook album url is valid' })
         return
       }
-      const { data } = await this.axiosFB.get(`${albumId}/photos`, {
-        params: { fields: 'largest_image', access_token: accessToken },
-        headers: { cookie },
-      })
-      const arrayLink: Array<ImageUrl> = Array.from(data).map((item: any) => {
-        return { id: item.id, url: item.largest_image.source }
-      })
+      const arrayLink = await fetchAllPhotoLinks(albumId, accessToken, cookie)
+      console.log(arrayLink.length)
       const response = await handleCallApiForFacebook(
         arrayLink,
         req.targetImage,
@@ -50,7 +36,7 @@ export class FacebookController {
       Object.keys(response).forEach((key: string) => {
         const value = response[key]
         if (value['match_face']) {
-          result.push(arrayLink.find((item) => key.includes(item.id)))
+          result.push(arrayLink.find((item) => key.split('.')[0] === item.id))
         }
       })
       res.status(StatusCodes.OK).json(result)
