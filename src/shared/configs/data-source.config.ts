@@ -1,9 +1,10 @@
+import 'dotenv/config'
 import { DataSource } from 'typeorm'
 import customNamingStrategy from '../../database/naming-strategies/custom-naming-strategy'
 import { environment } from '../constants'
 
 export default new DataSource({
-  type: 'mysql',
+  type: 'postgres',
   replication: {
     master: {
       database: environment.database.database,

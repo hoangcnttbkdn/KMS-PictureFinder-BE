@@ -2,7 +2,6 @@ import { Router } from 'express'
 import { validationMiddleware } from '../middlewares'
 import { HomeController } from '../controllers'
 import { CreateUserDto } from '../dtos'
-import { multerUploadMiddleware, fileUploadMiddleware } from '../middlewares'
 
 class HomeRoute {
   public path = '/'
@@ -16,14 +15,6 @@ class HomeRoute {
   }
 
   private initializeRoutes() {
-    // test middleware
-    this.router
-      .route('/upload')
-      .post(
-        multerUploadMiddleware,
-        fileUploadMiddleware,
-        this.homeController.upload,
-      )
     this.router.route('/').get(this.homeController.home)
     this.router
       .route('/users')
