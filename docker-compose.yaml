@@ -26,12 +26,11 @@ services:
     image: ${DB_IMAGE}
     container_name: ${APP_NAME}-db
     environment:
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_ROOT_PASSWORD: ${DB_PASS}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
     ports:
-      - 3306:${DB_PORT}
+      - 5432:${DB_PORT}
     networks:
       - app_network
 
