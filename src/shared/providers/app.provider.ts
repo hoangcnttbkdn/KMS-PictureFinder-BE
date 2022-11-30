@@ -5,11 +5,13 @@ import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import hpp from 'hpp'
+import { serve, setup } from 'swagger-ui-express'
 
 import { errorMiddleware } from '../../app/middlewares'
 import { logger } from '.'
 import { environment } from '../constants'
 import * as routers from '../../app/routers'
+import swaggerDocument from '../../../swagger.json'
 
 class AppProvider {
   public app: express.Application
@@ -20,6 +22,7 @@ class AppProvider {
     this.server = http.createServer(this.app)
 
     this.initializeMiddlewares()
+    this.initializeApiDocs()
     this.initializeRoutes()
     this.initializeNotfoundHandling()
     this.initializeErrorHandling()
@@ -63,6 +66,10 @@ class AppProvider {
 
   private initializeErrorHandling() {
     this.app.use(errorMiddleware)
+  }
+
+  private initializeApiDocs() {
+    this.app.use('/docs', serve, setup(swaggerDocument))
   }
 }
 
