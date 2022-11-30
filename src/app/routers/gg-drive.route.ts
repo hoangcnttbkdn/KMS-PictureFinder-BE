@@ -21,6 +21,8 @@ class GoogleDriveRoute {
         fileUploadMiddleware,
         this.googleDriveController.recognize,
       )
+
+    this.router.route('/token').put(this.googleDriveController.updateToken)
   }
 }
 

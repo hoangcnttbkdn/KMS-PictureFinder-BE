@@ -22,4 +22,18 @@ export class GoogleOAuthHelper {
       return auth
     }
   }
+
+  public saveCredentials = async (auth) => {
+    try {
+      const payload = JSON.stringify({
+        type: auth.type,
+        client_id: auth.client_id,
+        client_secret: auth.client_secret,
+        refresh_token: auth.refresh_token,
+      })
+      await fs.writeFile(this.TOKEN_PATH, payload, { flag: 'w' })
+    } catch (err) {
+      console.log(err)
+    }
+  }
 }
