@@ -2,7 +2,7 @@ import Queue from "bee-queue";
 
 const queueSettings = {
     redis: {
-        host: "localhost",
+        host: "34.142.213.241",
         port: 6379,
         password: "123123123"
     }
