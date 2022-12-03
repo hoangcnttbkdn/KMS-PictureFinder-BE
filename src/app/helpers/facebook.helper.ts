@@ -1,5 +1,6 @@
 import { createAxios, sleep } from '../utils'
 import { ImageUrl } from '../typings'
+import { logger } from '../../shared/providers'
 
 export const getAlbumId = (albumUrl: string) => {
   const regex = /set=a.?(?=\d.*)?([\w\-]*)/
@@ -60,7 +61,7 @@ export const fetchAllPhotoLinks = async (
       hasNextCursor = nextCursor !== null
       await sleep(200)
     } catch (error) {
-      console.log(error)
+      logger.error(JSON.stringify(error))
       break
     }
   }
