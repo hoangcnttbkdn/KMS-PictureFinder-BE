@@ -6,6 +6,7 @@ import { drive_v3, google } from 'googleapis'
 import { Readable } from 'stream'
 import FormData from 'form-data'
 import axios from 'axios'
+import { addJob } from './../../worker/MyWorker';
 
 export class GoogleDriveHelper {
   private googleOAuthHelper: GoogleOAuthHelper
@@ -33,37 +34,50 @@ export class GoogleDriveHelper {
     const formData = new FormData()
     const files: FileInfor[] = await this.getGoogleImgLink(folderId, auth)
 
-    // LIST IMAGES
-    await Promise.all(
-      files.map(async (file) => {
-        const buffer64: any = await this.getGGBuffer(drive, file)
-        formData.append('list_images', Readable.from(buffer64), file.id)
-      }),
-    )
-    // TARGET IMAGE
-    formData.append('target_image', Readable.from(targetImage), 'target.png')
-
-    const config = {
-      method: 'post',
-      url: this.AI_SERVER_URL,
-      headers: { ...formData.getHeaders() },
-      data: formData,
-    }
-
-    try {
-      const { data: apiData } = await axios(config)
-      const result: FileInfor[] = []
-      Object.keys(apiData).forEach((key: string) => {
-        const value = apiData[key]
-        if (value['match_face']) {
-          const matchFile = files.find((item) => key.includes(item.id))
-          result.push(matchFile)
-        }
+    // TODO: Save all file's info into database, create job queue
+    for (let i = 0; i < 10; i++) {
+      addJob({
+        files: "Job " + i
       })
-      return result
-    } catch (err) {
-      throw { message: 'Error when call AI server' }
     }
+    // TODO: Begin H1 block
+    // Move H1 block to worker
+    // LIST IMAGES
+    // await Promise.all(
+    //   files.map(async (file) => {
+    //     const buffer64: any = await this.getGGBuffer(drive, file)
+    //     formData.append('list_images', Readable.from(buffer64), file.id)
+    //   }),
+    // )
+    // // TARGET IMAGE
+    // formData.append('target_image', Readable.from(targetImage), 'target.png')
+
+    // const config = {
+    //   method: 'post',
+    //   url: this.AI_SERVER_URL,
+    //   headers: { ...formData.getHeaders() },
+    //   data: formData,
+    // }
+
+    // try {
+    //   const { data: apiData } = await axios(config)
+    //   const result: FileInfor[] = []
+    //   Object.keys(apiData).forEach((key: string) => {
+    //     const value = apiData[key]
+    //     if (value['match_face']) {
+    //       const matchFile = files.find((item) => key.includes(item.id))
+    //       result.push(matchFile)
+    //     }
+    //   })
+    //   return result
+
+    // } catch (err) {
+    //   throw { message: 'Error when call AI server' }
+    // }
+    // TODO: End H1 block
+
+    const result: FileInfor[] = [];
+    return result;
   }
 
   private getGGDriveFolderId = (folderUrl: string): string => {
