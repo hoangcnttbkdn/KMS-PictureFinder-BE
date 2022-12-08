@@ -4,6 +4,8 @@ import { NextFunction, Request, Response } from 'express'
 import createError from 'http-errors'
 
 import { CustomRequest } from '../typings/request'
+import { environment } from '../../shared/constants'
+import { s3Client } from '../../shared/configs/s3.config'
 
 export const multerUploadMiddleware = Multer({
   storage: memoryStorage(),
@@ -47,6 +49,16 @@ export const fileUploadMiddleware = async (
         .json({ message: 'Target image is required' })
     }
     req.targetImage = req.file.buffer
+    const stored = await s3Client
+      .upload({
+        Bucket: environment.aws.bucket,
+        Key: `kms-picture-finder/${Date.now()}-${Math.floor(
+          Math.random() * 10000,
+        )}.png`,
+        Body: req.file.buffer,
+      })
+      .promise()
+    req.targetImageUrl = stored['Location']
     next()
   } catch (error) {
     next(error)

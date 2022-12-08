@@ -9,4 +9,10 @@ export const environment = {
     host: process.env.DB_HOST,
   },
   formSizeLimit: +(process.env.FORM_SIZE_LIMIT || 2) * 1024 * 1024,
+  aws: {
+    accessKey: process.env.AWS_ACCESS_KEY,
+    secretKey: process.env.AWS_SECRET_KEY,
+    region: process.env.AWS_REGION,
+    bucket: process.env.AWS_BUCKET,
+  },
 }
