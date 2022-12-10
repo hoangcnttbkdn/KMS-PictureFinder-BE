@@ -47,9 +47,9 @@ export class FacebookController {
         email,
       )
       res.status(StatusCodes.OK).json({ sessionId })
-      addJob(sessionId, {
+      addJob({
         arrayLink,
-        sessionId: sessionId,
+        sessionId,
         targetImage: req.targetImageUrl,
         email,
       })
