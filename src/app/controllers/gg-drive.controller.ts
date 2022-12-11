@@ -2,6 +2,9 @@ import { CustomRequest } from '../typings/request'
 import { NextFunction, Request, Response } from 'express'
 import { GoogleDriveHelper, GoogleOAuthHelper } from '../helpers'
 import { StatusCodes } from 'http-status-codes'
+import { SessionTypeEnum } from '../../shared/constants'
+import { saveToDatabase } from '../utils'
+import { addJob } from '../workers'
 
 export class GoogleDriveController {
   private googleDriveHelper: GoogleDriveHelper
@@ -18,23 +21,40 @@ export class GoogleDriveController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const { folderUrl } = req.body
+      const { folderUrl, email } = req.body
       if (!folderUrl) {
         res
           .status(StatusCodes.BAD_REQUEST)
           .json({ message: 'GGDrive folderUrl is required' })
         return
       }
-
-      try {
-        const result = await this.googleDriveHelper.recognizeWithGGDrive(
-          folderUrl,
-          req.targetImage,
-        )
-        res.status(StatusCodes.OK).json(result)
-      } catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).json(error)
+      if (email) {
+        if (!String(email).match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+          res
+            .status(StatusCodes.BAD_REQUEST)
+            .json({ message: 'Email is invalid' })
+          return
+        }
       }
+
+      const arrayLink = await this.googleDriveHelper.recognizeWithGGDrive(
+        folderUrl,
+      )
+
+      const sessionId = await saveToDatabase(
+        folderUrl,
+        req.targetImageUrl,
+        SessionTypeEnum.DRIVE,
+        arrayLink,
+        email,
+      )
+      res.status(StatusCodes.OK).json({ sessionId })
+      addJob({
+        arrayLink,
+        sessionId,
+        targetImage: req.targetImageUrl,
+        email,
+      })
     } catch (error) {
       next(error)
     }
