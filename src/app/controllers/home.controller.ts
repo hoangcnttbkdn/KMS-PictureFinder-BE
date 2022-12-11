@@ -10,11 +10,14 @@ export class HomeController {
   ): Promise<void> => {
     try {
       res.redirect('/docs')
+      /* c8 ignore start */
     } catch (error) {
       next(error)
     }
+    /* c8 ignore end */
   }
 
+  /* c8 ignore start */
   public createUser = async (
     req: Request,
     res: Response,
@@ -28,4 +31,5 @@ export class HomeController {
       next(error)
     }
   }
+  /* c8 ignore end */
 }

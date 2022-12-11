@@ -25,5 +25,15 @@
     "noFallthroughCasesInSwitch": false
   },
   "include": ["**/*"],
-  "exclude": ["./dist", "node_modules"]
+  "exclude": [
+    "./dist",
+    "node_modules",
+    "./coverage",
+    "__tests__",
+    "jest.config.js"
+  ],
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true
+  }
 }

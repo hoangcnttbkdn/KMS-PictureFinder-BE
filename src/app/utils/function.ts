@@ -2,6 +2,7 @@ import { SessionRepository, ImageRepository } from '../repositories'
 import { SessionTypeEnum } from '../../shared/constants'
 import { ImageUrl } from '../typings'
 
+/* c8 ignore start */
 export const sleep = (ms: number) => {
   return new Promise((resolve) => {
     setTimeout(resolve, ms)
@@ -39,3 +40,4 @@ export const saveToDatabase = async (
   }
   return session.id
 }
+/* c8 ignore end */

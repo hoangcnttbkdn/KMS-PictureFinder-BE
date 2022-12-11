@@ -3,6 +3,7 @@ import Queue, { QueueOptions } from 'bull'
 const queueConfig: QueueOptions = {
   redis: {
     host: process.env.REDIS_HOST,
+    /* c8 ignore next */
     port: +(process.env.REDIS_PORT || 6379),
     password: process.env.REDIS_PASS,
   },
