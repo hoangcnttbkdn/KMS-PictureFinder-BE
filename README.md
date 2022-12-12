@@ -1,3 +1,13 @@
+# KMS-PictureFinder-BE
+
+## Architecture
+
+* **Current version**
+![](./assets/images/architect_1.png)
+
+* **The next version**
+![](./assets/images/architect_2.png)
+
 ## Prepare
 
 - Create a `.env` file from the `.env.example` file
