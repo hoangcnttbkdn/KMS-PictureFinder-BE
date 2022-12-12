@@ -9,6 +9,7 @@ export const createAxios = (axiosConfig: {
     headers: { ...axiosConfig.headers },
   })
 
+  /* c8 ignore start */
   axiosClient.interceptors.request.use(async (config) => {
     return config
   })
@@ -26,4 +27,5 @@ export const createAxios = (axiosConfig: {
   )
 
   return axiosClient
+  /* c8 ignore end */
 }

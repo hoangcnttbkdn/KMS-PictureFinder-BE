@@ -11,6 +11,7 @@ export const getAlbumId = (albumUrl: string) => {
   return ''
 }
 
+/* c8 ignore start */
 const axiosFB = createAxios({
   baseUrl: 'https://graph.facebook.com/v15.0/',
 })
@@ -67,3 +68,4 @@ export const fetchAllPhotoLinks = async (
   }
   return result
 }
+/* c8 ignore end */

@@ -21,8 +21,7 @@ export class FacebookController {
           .json({ message: 'Access token and cookie is required' })
         return
       }
-      const albumId = getAlbumId(albumUrl)
-      if (!albumId) {
+      if (!albumUrl) {
         res
           .status(StatusCodes.BAD_REQUEST)
           .json({ message: 'Facebook album url is invalid' })
@@ -36,6 +35,8 @@ export class FacebookController {
           return
         }
       }
+      /* c8 ignore start */
+      const albumId = getAlbumId(albumUrl)
       const arrayLink = await fetchAllPhotoLinks(albumId, accessToken, cookie)
       console.log(arrayLink.length)
 
@@ -56,5 +57,6 @@ export class FacebookController {
     } catch (error) {
       next(error)
     }
+    /* c8 ignore end */
   }
 }
