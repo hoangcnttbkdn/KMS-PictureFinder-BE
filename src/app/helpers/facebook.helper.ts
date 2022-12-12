@@ -29,7 +29,11 @@ const fetchPhotoLinksFromCursor = async (
       access_token: accessToken,
       after: cursor,
     },
-    headers: { cookie, 'Accept-Encoding': 'gzip,deflate,compress' },
+    headers: {
+      cookie,
+      'Accept-Encoding': 'gzip,deflate,compress',
+      'Content-Type': 'application/json; charset=utf-8',
+    },
   })) as any
   const arrayLink: Array<ImageUrl> = Array.from(data).map((item: any) => {
     return { id: item.id, url: item.largest_image.source }
