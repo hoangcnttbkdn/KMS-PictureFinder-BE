@@ -53,8 +53,8 @@ export class GoogleDriveController {
         arrayLink,
         sessionId,
         targetImage: req.targetImageUrl,
-        email,
         type: SessionTypeEnum.DRIVE,
+        email,
       })
     } catch (error) {
       next(error)

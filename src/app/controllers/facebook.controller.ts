@@ -52,8 +52,8 @@ export class FacebookController {
         arrayLink,
         sessionId,
         targetImage: req.targetImageUrl,
-        email,
         type: SessionTypeEnum.FACEBOOK,
+        email,
       })
     } catch (error) {
       next(error)
