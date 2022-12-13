@@ -1,9 +1,12 @@
-import { CustomRequest } from '../typings/request'
-import { NextFunction, Request, Response } from 'express'
-import { GoogleDriveHelper, GoogleOAuthHelper } from '../helpers'
 import { StatusCodes } from 'http-status-codes'
+import { plainToInstance } from 'class-transformer'
+import { NextFunction, Request, Response } from 'express'
+
+import { GoogleDriveHelper, GoogleOAuthHelper } from '../helpers'
 import { SessionTypeEnum } from '../../shared/constants'
+import { CustomRequest } from '../typings/request'
 import { saveToDatabase } from '../utils'
+import { UpdateTokenDto } from '../dtos'
 import { addJob } from '../workers'
 
 export class GoogleDriveController {
@@ -67,8 +70,9 @@ export class GoogleDriveController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      await this.googleOAuthHelper.saveCredentials(req.body)
-      res.status(StatusCodes.OK).json({ message: 'OK' })
+      const token = plainToInstance(UpdateTokenDto, req.body)
+      await this.googleOAuthHelper.saveCredentials(token)
+      res.status(StatusCodes.OK).json({ message: 'Update token success!' })
     } catch (error) {
       next(error)
     }

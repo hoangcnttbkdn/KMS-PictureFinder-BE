@@ -1,16 +1,24 @@
-/* eslint-disable @typescript-eslint/ban-types */
-import path from 'path'
-import * as fs from 'fs/promises'
 import { google } from 'googleapis'
 
+import { TokenRepository } from '../repositories'
+import { logger } from '../../shared/providers'
+import { UpdateTokenDto } from '../dtos'
+
 export class GoogleOAuthHelper {
-  private TOKEN_PATH = path.join(process.cwd(), 'gg-token.json')
+  private tokenRepository: TokenRepository
+  constructor() {
+    this.tokenRepository = new TokenRepository()
+  }
 
   private loadSavedCredentials = async () => {
     try {
-      const content = await fs.readFile(this.TOKEN_PATH)
-      const credentials = JSON.parse(content.toString())
-      return google.auth.fromJSON(credentials)
+      const token = await this.tokenRepository.findOne({ where: { id: 1 } })
+      return google.auth.fromJSON({
+        type: token.type,
+        client_id: token.clientId,
+        client_secret: token.clientSecret,
+        refresh_token: token.refreshToken,
+      })
     } catch (err) {
       return null
     }
@@ -23,17 +31,11 @@ export class GoogleOAuthHelper {
     }
   }
 
-  public saveCredentials = async (auth) => {
+  public saveCredentials = async (token: UpdateTokenDto) => {
     try {
-      const payload = JSON.stringify({
-        type: auth.type,
-        client_id: auth.client_id,
-        client_secret: auth.client_secret,
-        refresh_token: auth.refresh_token,
-      })
-      await fs.writeFile(this.TOKEN_PATH, payload, { flag: 'w' })
+      await this.tokenRepository.updateToken(1, token)
     } catch (err) {
-      console.log(err)
+      logger.error(err as any)
     }
   }
 }
