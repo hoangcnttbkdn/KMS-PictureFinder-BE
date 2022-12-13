@@ -32,7 +32,7 @@ pipeline {
         stage('SSH server and deploy') {
             steps{
                 sh 'echo deploy'
-                sh "ssh -i /var/jenkins_home/.ssh/beserver hoangsndxqn@34.143.233.85 './deployBE.sh'"
+                sh "ssh -i /var/jenkins_home/.ssh/beserver hoangsndxqn@35.240.135.215 './deployBE.sh'"
             }
         }
     }
