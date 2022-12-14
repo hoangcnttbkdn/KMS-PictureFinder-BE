@@ -3,11 +3,17 @@
   "info": {
     "title": "KMS Picture Finder API",
     "description": "Finding pictures have your face in Google Drive public folder or Facebook public album.",
-    "version": "1.0.0"
+    "version": "2.0.0"
   },
   "servers": [
     {
-      "url": "http://128.199.246.141:3000"
+      "url": "http://34.143.233.85"
+    },
+    {
+      "url": "https://be.picturesfinder.software"
+    },
+    {
+      "url": "http://34.143.233.85:3000"
     },
     {
       "url": "http://localhost:3000"
@@ -19,12 +25,16 @@
       "description": "API for facebook album",
       "externalDocs": {
         "description": "Tutorial get Facebook token and cookie",
-        "url": "https://www.youtube.com/watch?v=azE2CIqV2Lw"
+        "url": "https://youtu.be/OQv9Qg17gWQ"
       }
     },
     {
       "name": "google",
       "description": "API for google drive folder"
+    },
+    {
+      "name": "session",
+      "description": "API for sessions"
     }
   ],
   "paths": {
@@ -60,6 +70,9 @@
                   "targetImage": {
                     "type": "string",
                     "format": "binary"
+                  },
+                  "email": {
+                    "type": "string"
                   }
                 }
               }
@@ -73,13 +86,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/SessionResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "Access token and cookie is required |\nTarget image is required |\nFacebook album url is valid |\nOnly .png, .jpg and .jpeg format allowed",
+            "description": "Access token and cookie is required |\nTarget image is required |\nFacebook album url is invalid |\nEmail is invalid |\nOnly .png, .jpg and .jpeg format allowed",
             "content": {
               "application/json": {
                 "schema": {
@@ -185,10 +198,105 @@
           }
         }
       }
+    },
+    "/api/sessions/{id}": {
+      "get": {
+        "tags": [
+          "session"
+        ],
+        "summary": "Get session info",
+        "description": "Get session info.",
+        "operationId": "sessions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of session",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{id}/images": {
+      "get": {
+        "tags": [
+          "session"
+        ],
+        "summary": "Get images matched with target image in session",
+        "description": "Get images matched with target image in session.",
+        "operationId": "sessionsImages",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of session",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionImages"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "SessionResponse": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "number",
+            "example": 1
+          }
+        }
+      },
       "Response": {
         "type": "array",
         "items": {
@@ -201,6 +309,83 @@
             "url": {
               "type": "string",
               "example": "https://abc.xyz/def?q=rt"
+            }
+          }
+        }
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "url": {
+            "type": "string",
+            "example": "https://abc.xyz/def?q=rt"
+          },
+          "totalImages": {
+            "type": "number",
+            "example": 322
+          },
+          "type": {
+            "type": "string",
+            "example": "FACEBOOK"
+          },
+          "isFinished": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2022-11-30T03:12:48.441Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2022-11-30T03:12:48.441Z"
+          }
+        }
+      },
+      "SessionImages": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number",
+              "example": 1
+            },
+            "code": {
+              "type": "string",
+              "example": "abcxyz123"
+            },
+            "url": {
+              "type": "string",
+              "example": "https://abc.xyz/def?q=rt"
+            },
+            "isMatched": {
+              "type": "boolean",
+              "example": true
+            },
+            "recognizedAt": {
+              "type": "string",
+              "example": "2022-11-30T10:13:09.228Z"
+            },
+            "extraData": {
+              "type": "string",
+              "example": "{\"numberOfFace\":4,\"faceLocation\":[643,1047,730,1159],\"confident\":0.5790806412696838}"
+            },
+            "errorLogs": {
+              "type": "string",
+              "example": null
+            },
+            "createdAt": {
+              "type": "string",
+              "example": "2022-11-30T03:12:48.441Z"
+            },
+            "updatedAt": {
+              "type": "string",
+              "example": "2022-11-30T03:12:48.441Z"
             }
           }
         }

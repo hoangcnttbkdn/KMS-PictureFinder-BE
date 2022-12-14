@@ -1,9 +1,11 @@
 import { NextFunction, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 
-import { CustomRequest, ImageUrl } from '../typings'
-import { handleCallApiForFacebook } from '../utils'
 import { getAlbumId, fetchAllPhotoLinks } from '../helpers'
+import { SessionTypeEnum } from '../../shared/constants'
+import { CustomRequest } from '../typings'
+import { saveToDatabase } from '../utils'
+import { addJob } from '../workers'
 
 export class FacebookController {
   public handle = async (
@@ -12,36 +14,50 @@ export class FacebookController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const { accessToken, cookie, albumUrl } = req.body
+      const { accessToken, cookie, albumUrl, email } = req.body
       if (!accessToken || !cookie) {
         res
           .status(StatusCodes.BAD_REQUEST)
           .json({ message: 'Access token and cookie is required' })
         return
       }
-      const albumId = getAlbumId(albumUrl)
-      if (!albumId) {
+      if (!albumUrl) {
         res
           .status(StatusCodes.BAD_REQUEST)
-          .json({ message: 'Facebook album url is valid' })
+          .json({ message: 'Facebook album url is invalid' })
         return
       }
+      if (email) {
+        if (!String(email).match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+          res
+            .status(StatusCodes.BAD_REQUEST)
+            .json({ message: 'Email is invalid' })
+          return
+        }
+      }
+      /* c8 ignore start */
+      const albumId = getAlbumId(albumUrl)
       const arrayLink = await fetchAllPhotoLinks(albumId, accessToken, cookie)
       console.log(arrayLink.length)
-      const response = await handleCallApiForFacebook(
+
+      const sessionId = await saveToDatabase(
+        albumUrl,
+        req.targetImageUrl,
+        SessionTypeEnum.FACEBOOK,
         arrayLink,
-        req.targetImage,
+        email,
       )
-      const result: Array<ImageUrl> = []
-      Object.keys(response).forEach((key: string) => {
-        const value = response[key]
-        if (value['match_face']) {
-          result.push(arrayLink.find((item) => key.split('.')[0] === item.id))
-        }
+      res.status(StatusCodes.OK).json({ sessionId })
+      addJob({
+        arrayLink,
+        sessionId,
+        targetImage: req.targetImageUrl,
+        type: SessionTypeEnum.FACEBOOK,
+        email,
       })
-      res.status(StatusCodes.OK).json(result)
     } catch (error) {
       next(error)
     }
+    /* c8 ignore end */
   }
 }

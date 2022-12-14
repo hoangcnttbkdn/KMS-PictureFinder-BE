@@ -1,5 +1,6 @@
 import { createAxios, sleep } from '../utils'
 import { ImageUrl } from '../typings'
+import { logger } from '../../shared/providers'
 
 export const getAlbumId = (albumUrl: string) => {
   const regex = /set=a.?(?=\d.*)?([\w\-]*)/
@@ -10,6 +11,7 @@ export const getAlbumId = (albumUrl: string) => {
   return ''
 }
 
+/* c8 ignore start */
 const axiosFB = createAxios({
   baseUrl: 'https://graph.facebook.com/v15.0/',
 })
@@ -27,7 +29,11 @@ const fetchPhotoLinksFromCursor = async (
       access_token: accessToken,
       after: cursor,
     },
-    headers: { cookie },
+    headers: {
+      cookie,
+      'Accept-Encoding': 'gzip,deflate,compress',
+      'Content-Type': 'application/json; charset=utf-8',
+    },
   })) as any
   const arrayLink: Array<ImageUrl> = Array.from(data).map((item: any) => {
     return { id: item.id, url: item.largest_image.source }
@@ -60,9 +66,10 @@ export const fetchAllPhotoLinks = async (
       hasNextCursor = nextCursor !== null
       await sleep(200)
     } catch (error) {
-      console.log(error)
+      logger.error(JSON.stringify(error))
       break
     }
   }
   return result
 }
+/* c8 ignore end */
