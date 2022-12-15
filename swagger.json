@@ -7,13 +7,13 @@
   },
   "servers": [
     {
-      "url": "https://dev.be.picturesfinder.software"
+      "url": "http://dev.be.picturesfinder.software"
     },
     {
       "url": "http://35.240.135.215"
     },
     {
-      "url": "https://be.picturesfinder.software"
+      "url": "http://be.picturesfinder.software"
     },
     {
       "url": "http://34.126.120.6"
