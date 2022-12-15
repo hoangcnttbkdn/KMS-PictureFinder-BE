@@ -1,10 +1,11 @@
 import { ImageUrl } from '.'
-import { SessionTypeEnum } from '../../shared/constants'
+import { SessionTypeEnum, TypeRecognizeEnum } from '../../shared/constants'
 
 export interface WorkerData {
   arrayLink: Array<ImageUrl>
   sessionId: number
-  targetImage: string
+  targetData: string
   type: SessionTypeEnum
+  typeRecognize: TypeRecognizeEnum
   email?: string
 }
