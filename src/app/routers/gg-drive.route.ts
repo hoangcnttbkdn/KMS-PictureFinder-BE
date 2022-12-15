@@ -4,6 +4,7 @@ import {
   multerUploadMiddleware,
   fileUploadMiddleware,
   validationMiddleware,
+  ggDriveMiddleware,
 } from '../middlewares'
 import { UpdateTokenDto } from '../dtos'
 
@@ -20,11 +21,25 @@ class GoogleDriveRoute {
 
   private initializeRoutes() {
     this.router
-      .route('/')
+      .route('/face')
       .post(
         multerUploadMiddleware,
         fileUploadMiddleware,
-        this.googleDriveController.recognize,
+        ggDriveMiddleware,
+        this.googleDriveController.recognizeFace,
+      )
+
+    this.router
+      .route('/bib')
+      .post(ggDriveMiddleware, this.googleDriveController.recognizeBib)
+
+    this.router
+      .route('/clothes')
+      .post(
+        multerUploadMiddleware,
+        fileUploadMiddleware,
+        ggDriveMiddleware,
+        this.googleDriveController.recognizeClothes,
       )
 
     this.router
