@@ -1,8 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
-import { Request, Response, NextFunction } from 'express'
+import { Response, NextFunction } from 'express'
+import { CustomRequest } from '../typings'
+import { GoogleDriveHelper } from '../helpers'
 
-export const ggDriveMiddleware = (
-  req: Request,
+export const ggDriveMiddleware = async (
+  req: CustomRequest,
   res: Response,
   next: NextFunction,
 ) => {
@@ -19,5 +21,17 @@ export const ggDriveMiddleware = (
       return
     }
   }
+  /* c8 ignore start */
+  const arrayLink = await new GoogleDriveHelper().recognizeWithGGDrive(
+    folderUrl,
+  )
+  if (arrayLink.length === 0) {
+    res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Empty folder or token is expired' })
+    return
+  }
+  req.arrayLink = arrayLink
   next()
+  /* c8 ignore end */
 }
