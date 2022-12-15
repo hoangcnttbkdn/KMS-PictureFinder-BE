@@ -1,8 +1,7 @@
 import { NextFunction, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 
-import { getAlbumId, fetchAllPhotoLinks } from '../helpers'
-import { SessionTypeEnum } from '../../shared/constants'
+import { SessionTypeEnum, TypeRecognizeEnum } from '../../shared/constants'
 import { CustomRequest } from '../typings'
 import { saveToDatabase } from '../utils'
 import { addJob } from '../workers'
@@ -14,45 +13,89 @@ export class FacebookController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const { accessToken, cookie, albumUrl, email } = req.body
-      if (!accessToken || !cookie) {
-        res
-          .status(StatusCodes.BAD_REQUEST)
-          .json({ message: 'Access token and cookie is required' })
-        return
-      }
-      if (!albumUrl) {
-        res
-          .status(StatusCodes.BAD_REQUEST)
-          .json({ message: 'Facebook album url is invalid' })
-        return
-      }
-      if (email) {
-        if (!String(email).match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
-          res
-            .status(StatusCodes.BAD_REQUEST)
-            .json({ message: 'Email is invalid' })
-          return
-        }
-      }
       /* c8 ignore start */
-      const albumId = getAlbumId(albumUrl)
-      const arrayLink = await fetchAllPhotoLinks(albumId, accessToken, cookie)
-      console.log(arrayLink.length)
-
+      const { albumUrl, email } = req.body
       const sessionId = await saveToDatabase(
         albumUrl,
         req.targetImageUrl,
         SessionTypeEnum.FACEBOOK,
-        arrayLink,
+        TypeRecognizeEnum.FACE,
+        req.arrayLink,
         email,
       )
       res.status(StatusCodes.OK).json({ sessionId })
       addJob({
-        arrayLink,
+        arrayLink: req.arrayLink,
         sessionId,
-        targetImage: req.targetImageUrl,
+        targetData: req.targetImageUrl,
         type: SessionTypeEnum.FACEBOOK,
+        typeRecognize: TypeRecognizeEnum.FACE,
+        email,
+      })
+    } catch (error) {
+      next(error)
+    }
+    /* c8 ignore end */
+  }
+
+  public handleBib = async (
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const { albumUrl, email, bib } = req.body
+      if (!bib) {
+        res.status(StatusCodes.BAD_REQUEST).json({ message: 'BIB is required' })
+        return
+      }
+      /* c8 ignore start */
+      const sessionId = await saveToDatabase(
+        albumUrl,
+        bib,
+        SessionTypeEnum.FACEBOOK,
+        TypeRecognizeEnum.BIB,
+        req.arrayLink,
+        email,
+      )
+      res.status(StatusCodes.OK).json({ sessionId })
+      addJob({
+        arrayLink: req.arrayLink,
+        sessionId,
+        targetData: bib,
+        type: SessionTypeEnum.FACEBOOK,
+        typeRecognize: TypeRecognizeEnum.BIB,
+        email,
+      })
+    } catch (error) {
+      next(error)
+    }
+    /* c8 ignore end */
+  }
+
+  public handleClothes = async (
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const { albumUrl, email } = req.body
+      /* c8 ignore start */
+      const sessionId = await saveToDatabase(
+        albumUrl,
+        req.targetImageUrl,
+        SessionTypeEnum.FACEBOOK,
+        TypeRecognizeEnum.CLOTHES,
+        req.arrayLink,
+        email,
+      )
+      res.status(StatusCodes.OK).json({ sessionId })
+      addJob({
+        arrayLink: req.arrayLink,
+        sessionId,
+        targetData: req.targetImageUrl,
+        type: SessionTypeEnum.FACEBOOK,
+        typeRecognize: TypeRecognizeEnum.CLOTHES,
         email,
       })
     } catch (error) {

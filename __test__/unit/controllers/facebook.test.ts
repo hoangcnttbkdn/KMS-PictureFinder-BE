@@ -14,7 +14,7 @@ describe('Test facebook', () => {
 
   it('image greater than 5MB', async () => {
     const res = await server
-      .post('/api/facebook')
+      .post('/api/facebook/face')
       .attach(
         'targetImage',
         path.resolve(
@@ -37,7 +37,7 @@ describe('Test facebook', () => {
 
   it('missing target image', async () => {
     const res = await server
-      .post('/api/facebook')
+      .post('/api/facebook/face')
       .field('accessToken', 'abc')
       .field('cookie', 'abc')
       .field(
@@ -49,7 +49,7 @@ describe('Test facebook', () => {
 
   it('missing access token', async () => {
     const res = await server
-      .post('/api/facebook')
+      .post('/api/facebook/face')
       .attach(
         'targetImage',
         path.resolve(__dirname, '..', '..', '__mock__', 'files', 'thanh.jpg'),
@@ -64,7 +64,7 @@ describe('Test facebook', () => {
 
   it('missing cookie', async () => {
     const res = await server
-      .post('/api/facebook')
+      .post('/api/facebook/face')
       .attach(
         'targetImage',
         path.resolve(__dirname, '..', '..', '__mock__', 'files', 'thanh.jpg'),
@@ -79,7 +79,7 @@ describe('Test facebook', () => {
 
   it('missing album url', async () => {
     const res = await server
-      .post('/api/facebook')
+      .post('/api/facebook/face')
       .attach(
         'targetImage',
         path.resolve(__dirname, '..', '..', '__mock__', 'files', 'thanh.jpg'),
@@ -89,9 +89,23 @@ describe('Test facebook', () => {
     expect(res.body).toEqual({ message: 'Facebook album url is invalid' })
   })
 
+  it('missing bib', async () => {
+    const res = await server
+      .post('/api/facebook/bib')
+      .send({
+        accessToken: 'abc',
+        cookie: 'abc',
+        albumUrl:
+          'https://www.facebook.com/media/set/?set=a.104337903263533&type=3',
+      })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+    expect(res.body).toEqual({ message: 'BIB is required' })
+  })
+
   it('email invalid', async () => {
     const res = await server
-      .post('/api/facebook')
+      .post('/api/facebook/face')
       .attach(
         'targetImage',
         path.resolve(__dirname, '..', '..', '__mock__', 'files', 'thanh.jpg'),
