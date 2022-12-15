@@ -26,11 +26,13 @@ class GoogleDriveRoute {
         multerUploadMiddleware,
         fileUploadMiddleware,
         ggDriveMiddleware,
-        this.googleDriveController.recognize,
+        this.googleDriveController.recognizeFace,
       )
+
     this.router
       .route('/bib')
       .post(ggDriveMiddleware, this.googleDriveController.recognizeBib)
+
     this.router
       .route('/clothes')
       .post(
