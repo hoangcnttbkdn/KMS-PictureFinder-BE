@@ -3,9 +3,11 @@ const objectSession = {
   url: 'https://www.facebook.com/media/set/?set=a.1382515015345749&type=3',
   targetImageUrl:
     'https://pbl6.s3.ap-southeast-1.amazonaws.com/kms-picture-finder/1670430212769-8718.png',
+  bib: null,
   email: null,
   totalImages: 14,
   type: 'FACEBOOK',
+  typeRecognize: 'FACE',
   isFinished: true,
   createdAt: '2022-12-07T09:23:34.153Z',
   updatedAt: '2022-12-07T09:25:06.572Z',

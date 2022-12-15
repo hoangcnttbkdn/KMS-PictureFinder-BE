@@ -1,5 +1,5 @@
 import { SessionRepository, ImageRepository } from '../repositories'
-import { SessionTypeEnum } from '../../shared/constants'
+import { SessionTypeEnum, TypeRecognizeEnum } from '../../shared/constants'
 import { ImageUrl } from '../typings'
 
 /* c8 ignore start */
@@ -11,8 +11,9 @@ export const sleep = (ms: number) => {
 
 export const saveToDatabase = async (
   albumUrl: string,
-  targetImageUrl: string,
+  targetData: string,
   type: SessionTypeEnum,
+  typeRecognize: TypeRecognizeEnum,
   arrayLink: Array<ImageUrl>,
   email?: string,
 ) => {
@@ -21,9 +22,11 @@ export const saveToDatabase = async (
   const session = await sessionRepository.save(
     sessionRepository.create({
       url: albumUrl,
-      targetImageUrl,
+      [typeRecognize === TypeRecognizeEnum.BIB ? 'bib' : 'targetImageUrl']:
+        targetData,
       totalImages: arrayLink.length,
       type,
+      typeRecognize,
       isFinished: false,
       email,
     }),

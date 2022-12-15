@@ -1,6 +1,10 @@
 import { Router } from 'express'
 import { FacebookController } from '../controllers'
-import { multerUploadMiddleware, fileUploadMiddleware } from '../middlewares'
+import {
+  multerUploadMiddleware,
+  fileUploadMiddleware,
+  facebookMiddleware,
+} from '../middlewares'
 
 class FacebookRoute {
   public path = '/api/facebook'
@@ -15,11 +19,23 @@ class FacebookRoute {
 
   private initializeRoutes() {
     this.router
-      .route('/')
+      .route('/face')
       .post(
         multerUploadMiddleware,
         fileUploadMiddleware,
+        facebookMiddleware,
         this.facebookController.handle,
+      )
+    this.router
+      .route('/bib')
+      .post(facebookMiddleware, this.facebookController.handleBib)
+    this.router
+      .route('/clothes')
+      .post(
+        multerUploadMiddleware,
+        fileUploadMiddleware,
+        facebookMiddleware,
+        this.facebookController.handleClothes,
       )
   }
 }

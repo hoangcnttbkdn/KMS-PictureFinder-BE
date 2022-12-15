@@ -19,6 +19,7 @@ module.exports = {
     './src/app/controllers/gg-drive.controller.ts',
     './src/app/helpers/gg-drive.helper.ts',
     './src/app/helpers/gg-oauth.helper.ts',
+    '.src/app/middlewares/gg-drive.middleware.ts',
   ],
   coverageProvider: 'v8',
   coverageReporters: ['json-summary', 'html', 'text'],
